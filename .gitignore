@@ -1,0 +1,13 @@
+*.csv
+*.txt
+*.log
+*.h5
+*.pyc
+.DS_Store
+test_results/
+results/
+logs/
+prefetch/
+checkpoints/
+__pycache__
+.idea
