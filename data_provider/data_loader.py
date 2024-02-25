@@ -1,7 +1,6 @@
 
 import traceback
 
-import h5py
 import numpy as np
 import pandas as pd
 import os
@@ -11,8 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 from util.functional import instance_norm
-from util.lead_estimate import estimate_indicator, accurate_indicator, accurate_strict_indicator_coef, \
-    estimate_strict_indicator_coef, cross_corr_coef, shifted_leader_seq
+from util.lead_estimate import estimate_indicator, accurate_indicator, shifted_leader_seq
 from util.timefeatures import time_features
 import warnings
 
@@ -27,6 +25,7 @@ def get_alldata(filename='electricity.csv', root_path='./'):
             df['date'] = pd.date_range(start='2000-01-01', periods=len(df), freq='H')
     else:
         if filename.startswith('nyc'):
+            import h5py
             x = h5py.File(path, 'r')
             data = list()
             for key in x.keys():

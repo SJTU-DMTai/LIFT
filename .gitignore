@@ -1,5 +1,5 @@
 *.csv
-*.txt
+!requirements.txt
 *.log
 *.h5
 *.pyc

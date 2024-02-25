@@ -2,11 +2,8 @@ import collections
 
 import numpy as np
 import torch
-import matplotlib.pyplot as plt
 import time
 from copy import deepcopy
-
-plt.switch_backend('agg')
 
 
 def load_model_compile(model, model_pth, device, strict=False):
@@ -147,17 +144,6 @@ class StandardScaler():
     def inverse_transform(self, data):
         return (data * self.std) + self.mean
 
-
-def visual(true, preds=None, name='./pic/test.pdf'):
-    """
-    Results visualization
-    """
-    plt.figure()
-    plt.plot(true, label='GroundTruth', linewidth=2)
-    if preds is not None:
-        plt.plot(preds, label='Prediction', linewidth=2)
-    plt.legend()
-    plt.savefig(name, bbox_inches='tight')
 
 def test_params_flop(model, x_shape, x=None):
     """
