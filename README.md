@@ -1,4 +1,6 @@
 # (ICLR'24) LIFT: Rethinking Channel Dependence for Multivariate Time Series Forecasting with Leading Indicators
+![Stars](https://img.shields.io/github/stars/SJTU-Quant/LIFT)
+[![Visits Badge](https://badges.pufler.dev/visits/SJTU-Quant/LIFT)](https://badges.pufler.dev/visits/SJTU-Quant/LIFT)
 
 This repo is the official Pytorch implementation of [LIFT: Rethinking Channel Dependence for Multivariate Time Series Forecasting with Leading Indicators](https://arxiv.org/pdf/2401.17548.pdf). 
 
