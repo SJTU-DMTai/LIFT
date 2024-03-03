@@ -515,7 +515,7 @@ class Dataset_Lead(Dataset):
     def __init__(self, dataset, prefetch_path=None,
                  leader_num=4, local_max=True,
                  prefetch_batch_size=32, device='cuda', pin_gpu=False,
-                 trunc_tail=12, variable_batch_size=32, efficient=True, **kwargs):
+                 variable_batch_size=32, efficient=True, **kwargs):
         self.moving_average_kernel = 25
         self.dataset = dataset
         self.seq_len = dataset.seq_len
@@ -528,9 +528,6 @@ class Dataset_Lead(Dataset):
         self.pin_gpu = pin_gpu
         self.variable_batch_size = variable_batch_size
         self.efficient = efficient
-        if trunc_tail == 0:
-            trunc_tail = -dataset.seq_len
-        self.trunc_tail = trunc_tail
         self.local_max = local_max
         self.cache = {}
         self._load_prefetch_files(prefetch_path, lambda x: instance_norm(x.permute(0, 2, 1), -1))
@@ -583,7 +580,7 @@ class Dataset_Lead(Dataset):
             for i in tqdm(range(0, estimate_num, self.prefetch_batch_size)):
                 _idx = (indices + i)[:min(estimate_num - i, self.prefetch_batch_size)]
                 x = self.dataset.data_x[_idx].to(self.device)
-                res = estimate_indicator(process_x_func(x), K, trunc_tail=self.trunc_tail, local_max=self.local_max)
+                res = estimate_indicator(process_x_func(x), K, local_max=self.local_max)
                 for ei, (k, v) in enumerate(zip(['leader_ids', 'shift', 'corr'], res)):
                     self.cache[k + suffix][i: i+len(_idx)] = v if self.pin_gpu else v.cpu()
 
@@ -658,7 +655,7 @@ class Dataset_Lead_Stat(Dataset_Lead):
             y = (y - mu) / std
 
             seq_shifted, r_abs = shifted_leader_seq(x, y, self.K, leader_ids, shift, r,
-                                                const_indices, trunc_tail=self.trunc_tail) # [B, C, K, H]
+                                                const_indices) # [B, C, K, H]
             future_r = (instance_norm(seq_shifted, -1) @ instance_norm(y, -1).unsqueeze(-1)).squeeze(-1) / self.pred_len
 
             delta.append((future_r - r_abs)[r_abs > self.threshold].view(-1).cpu())

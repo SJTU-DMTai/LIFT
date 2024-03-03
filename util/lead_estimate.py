@@ -35,7 +35,7 @@ def accurate_indicator(x, j, K, local_max=True):
     return leader_ids, shift, r
 
 
-def cross_corr_coef(x, trunc_tail=12, variable_batch_size=32, predefined_leaders=None, local_max=True):
+def cross_corr_coef(x, variable_batch_size=32, predefined_leaders=None, local_max=True):
     B, C, L = x.shape
 
     rfft = torch.fft.rfft(x, dim=-1)  # [B, C, F]
@@ -57,12 +57,11 @@ def cross_corr_coef(x, trunc_tail=12, variable_batch_size=32, predefined_leaders
 
     # cross_corr[..., 0] = cross_corr[..., 0] * (1 - torch.eye(cross_corr.shape[1], device=cross_corr.device))
 
-    cross_corr = cross_corr[..., :-trunc_tail + 1]
     return cross_corr / L
 
 
-def estimate_indicator(x, K, trunc_tail=12, variable_batch_size=32, predefined_leaders=None, local_max=True):
-    cross_corr = cross_corr_coef(x, trunc_tail, variable_batch_size, predefined_leaders)
+def estimate_indicator(x, K, variable_batch_size=32, predefined_leaders=None, local_max=True):
+    cross_corr = cross_corr_coef(x, variable_batch_size, predefined_leaders)
     corr_abs = cross_corr.abs()     # [B, C, C, L]
     corr_abs_max, shift = corr_abs.max(-1)  # [B, C, C]
     if not local_max:
@@ -80,15 +79,15 @@ def estimate_indicator(x, K, trunc_tail=12, variable_batch_size=32, predefined_l
 
 
 def shifted_leader_seq(x, y_hat, leader_num, leader_ids=None, shift=None, r=None, const_indices=None,
-                       num_lead_step=1, trunc_tail=12, variable_batch_size=32, predefined_leaders=None):
+                       variable_batch_size=32, predefined_leaders=None):
     B, C, L = x.shape
     H = y_hat.shape[-1]
     
     if const_indices is None:
-        const_indices = torch.arange(L - trunc_tail, L + H, dtype=torch.int, device=x.device).unsqueeze(0).unsqueeze(0)
+        const_indices = torch.arange(L, L + H, dtype=torch.int, device=x.device).unsqueeze(0).unsqueeze(0)
 
     if leader_ids is None:
-        leader_ids, shift, r = estimate_indicator(x, leader_num, trunc_tail=trunc_tail,
+        leader_ids, shift, r = estimate_indicator(x, leader_num,
                                                   variable_batch_size=variable_batch_size,
                                                   predefined_leaders=predefined_leaders)
     indices = const_indices - shift.view(B, -1, 1)  # [B, C*K, H]
@@ -124,7 +123,7 @@ def accurate_strict_indicator_coef(x, j):
     return corr_abs_max
 
 
-def estimate_strict_indicator_coef(x, K, num_lead_step=1, trunc_tail=12, variable_batch_size=32, predefined_leaders=None):
+def estimate_strict_indicator_coef(x, K, num_lead_step=1, variable_batch_size=32, predefined_leaders=None):
     B, C, L = x.shape
     rfft = torch.fft.rfft(x, dim=-1)  # [B, C, F]
     rfft_conj = torch.conj(rfft)

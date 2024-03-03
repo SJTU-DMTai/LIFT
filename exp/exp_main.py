@@ -6,7 +6,7 @@ import models.normalization
 import settings
 from data_provider.data_factory import get_dataset
 from exp.exp_basic import Exp_Basic
-from util.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop, load_model_compile
+from util.tools import EarlyStopping, adjust_learning_rate, test_params_flop, load_model_compile
 from util.metrics import metric, update_metrics, calculate_metrics
 
 import numpy as np
