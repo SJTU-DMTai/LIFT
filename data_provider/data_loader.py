@@ -612,6 +612,8 @@ class Dataset_Lead_Pretrain(Dataset_Lead):
             begin_index = max(0, self.dataset.border[0] - self.pred_len + 1)
             pred = pred[begin_index: begin_index + len(dataset)]
         self.pred = torch.tensor(pred)
+        if self.pin_gpu:
+            self.pred = self.pred.to(self.device)
 
     def __getitem__(self, index):
         return super().__getitem__(index) + (self.pred[index], )

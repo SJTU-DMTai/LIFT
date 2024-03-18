@@ -15,6 +15,7 @@ from util.tools import remove_state_key_prefix
 class Exp_Basic(object):
     def __init__(self, args):
         self.args = args
+        self.label_position = 1
         self.device = self._acquire_device()
         self.wrap_data_kwargs = {}
         self.model_optim = None
@@ -66,7 +67,8 @@ class Exp_Basic(object):
 
     def forward(self, batch):
         if not self.args.pin_gpu:
-            batch = [_data.to(self.device) if isinstance(_data, torch.Tensor) else _data for _data in batch]
+            batch = [batch[i].to(self.device) if isinstance(batch[i], torch.Tensor) and i != self.label_position
+                     else batch[i] for i in range(len(batch))]
         inp = self._process_batch(batch)
         if self.args.use_amp:
             with torch.cuda.amp.autocast():

@@ -30,7 +30,6 @@ warnings.filterwarnings('ignore')
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
         super().__init__(args)
-        self.label_position = 1
 
     def _build_model(self, model=None, framework_class=None):
         if model is None:
@@ -108,7 +107,10 @@ class Exp_Main(Exp_Basic):
                 outputs = self.forward(batch)
                 if isinstance(outputs, tuple):
                     outputs = outputs[0]
-                loss = criterion(outputs, batch[self.label_position])
+                true = batch[self.label_position]
+                if not self.args.pin_gpu:
+                    true = true.to(self.device)
+                loss = criterion(outputs, true)
                 total_loss.append(loss.item())
         total_loss = np.average(total_loss)
         if self.args.local_rank != -1:
@@ -236,7 +238,10 @@ class Exp_Main(Exp_Basic):
         with torch.no_grad():
             for i, batch in enumerate(test_loader):
                 outputs = self.forward(batch)
-                update_metrics(outputs, batch[self.label_position], statistics, target_variate)
+                true = batch[self.label_position]
+                if not self.args.pin_gpu:
+                    true = true.to(self.device)
+                update_metrics(outputs, true, statistics, target_variate)
 
         metrics = calculate_metrics(statistics)
         mse, mae = metrics['MSE'], metrics['MAE']
