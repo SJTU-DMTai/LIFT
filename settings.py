@@ -120,7 +120,6 @@ def get_hyperparams(data, model, args):
     return hyperparam
 
 
-
 def pretrain_lr(model, dataset, H, lr):
     if model == 'MTGNN':
         if dataset in 'Weather|ETTh1|ETTm1'.split('|'):
@@ -132,30 +131,28 @@ def pretrain_lr(model, dataset, H, lr):
         elif dataset in 'Solar'.split('|'):
             return 0.001
         elif dataset in ['ECL']:
-            return 0.0005 if H >= 192 else 0.001
+            return 0.0005 if H == 720 else 0.001
         return 0.001
     if 'PatchTST' in model:
-        if dataset in 'Solar'.split('|'):
-            if H < 720:
-                return 0.001
-            else:
-                return 0.0005
-        if dataset in ['PeMSD8']:
+        if dataset in ['PeMSD8', 'Solar']:
             return 0.001
         return 0.0001
     if model == 'Crossformer':
         if dataset in ['ECL']:
             return 0.005
         elif dataset in ['wind']:
-            return 0.0001
+            if H <= 96:
+                return 0.0001
+            else:
+                return 0.00005
         elif dataset in ['Weather']:
             if H >= 192:
                 return 0.00001
             else:
                 return 0.00005
         elif dataset in 'Solar'.split('|'):
-            if H >= 48:
-                return 0.005
+            if H >= 192:
+                return 0.0005
             else:
                 return 0.001
         elif dataset in 'ETTh1|ETTh2'.split('|'):
@@ -178,8 +175,4 @@ def pretrain_lr(model, dataset, H, lr):
                 return 0.0005
             else:
                 return 0.001
-        if dataset in 'NYC_TAXI|NYC_BIKE'.split('|'):
-            return 0.01
-        else:
-            return 0.001
     return lr

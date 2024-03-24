@@ -1,8 +1,8 @@
-# (ICLR'24) LIFT: Rethinking Channel Dependence for Multivariate Time Series Forecasting with Leading Indicators
+# (ICLR'24) Rethinking Channel Dependence for Multivariate Time Series Forecasting: Learning from Leading Indicators
 ![Stars](https://img.shields.io/github/stars/SJTU-Quant/LIFT)
 [![Visits Badge](https://badges.pufler.dev/visits/SJTU-Quant/LIFT)](https://badges.pufler.dev/visits/SJTU-Quant/LIFT)
 
-This repo is the official Pytorch implementation of [LIFT: Rethinking Channel Dependence for Multivariate Time Series Forecasting with Leading Indicators](https://arxiv.org/pdf/2401.17548.pdf). 
+This repo is the official Pytorch implementation of [Rethinking Channel Dependence for Multivariate Time Series Forecasting: Learning from Leading Indicators](https://arxiv.org/pdf/2401.17548.pdf). 
 
 ## Takeaways
 - **Rethinking channel dependence in MTS from a perspective of lead-lag relationships.**
@@ -20,10 +20,25 @@ This repo is the official Pytorch implementation of [LIFT: Rethinking Channel De
 ## Scripts
 An example:
 ```bash
-python -u run_longExp.py --dataset Weather --model DLinear --lift --seq_len 336 --pred_len 96 --leader_num 8 --state_num 16 --learning_rate 0.001
+python -u run_longExp.py --dataset Weather --model DLinear --lift --seq_len 336 --pred_len 96 --leader_num 4 --state_num 8 --learning_rate 0.0005
 ```
 
-We are still preparing the scripts of experiments, which will come soon!
+The `scripts/` directory contains our scripts for re-experiments but does not cover all datasets. 
+We slightly revised our method after the paper submission, while we have not re-run all experiments yet due to limited computing resources.
+You can perform hyperparameter tuning on your own if necessary.
+
+It is recommended to obtain a pretrained and frozen backbone first, in order to reduce the time cost of
+selecting LIFT's hyperparameters. (Add args `--pretrain --freeze` into your scripts to load a frozen backbone.)
+
+### Precomputing
+Our implementation precomputes the leading indicators and the leading steps at all time steps over the dataset, which are saved to the `prefetch/` directory.
+
+Given a frozen backbone, we also precompute the backbone's predictions only once and save them to the `results/` directory.
+
+The LIFT module directly takes in the tensors of predictions without recomputing the lead-lag relationships (and the backbone's prediction if `--pretrain --freeze`). 
+
+To avoid repeatedly loading the input tensors from RAM to GPU memory, we keep all the input tensors on the GPU memory by default.
+You can set `--pin_gpu False` if your GPU memory is limited.
 
 ## Datasets
 All benchmarks can be downloaded from [Google Drive](https://drive.google.com/drive/folders/1mJzKrdq-M8C0DrjHeXofcRm-3T3dJ-Gj?usp=sharing).
@@ -38,7 +53,7 @@ If you find this useful for your work, please consider citing it as follows:
 ```
 @inproceedings{
 LIFT,
-title={LIFT: Rethinking Channel Dependence for Multivariate Time Series Forecasting with Leading Indicators},
+title={Rethinking Channel Dependence for Multivariate Time Series Forecasting: Learning from Leading Indicators},
 author={Lifan Zhao and Yanyan Shen},
 booktitle={The Twelfth International Conference on Learning Representations},
 year={2024},
