@@ -44,6 +44,8 @@ class LeadRefiner(LIFT.LeadRefiner):
         seq_diff_f = (seq_shifted_f - y_hat_f.unsqueeze(2)) * filters[:, :, self.K:-1]
         y_hat_f = y_hat_f * filters[:, :, -1]
         y_hat = y_hat + torch.fft.irfft(
-            self.mix_layer(torch.cat([seq_shifted_f.sum(2), seq_diff_f.sum(2), y_hat_f], -1)))
+            self.mix_layer(torch.cat([seq_shifted_f.sum(2), seq_diff_f.sum(2), y_hat_f], -1)),
+            n=self.pred_len
+        )
 
         return y_hat

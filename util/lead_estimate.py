@@ -42,13 +42,14 @@ def cross_corr_coef(x, variable_batch_size=32, predefined_leaders=None, local_ma
     rfft_conj = torch.conj(rfft)
     if predefined_leaders is None:
         cross_corr = torch.cat([
-            torch.fft.irfft(rfft.unsqueeze(2) * rfft_conj[:, i: i + variable_batch_size].unsqueeze(1), dim=-1)
+            torch.fft.irfft(rfft.unsqueeze(2) * rfft_conj[:, i: i + variable_batch_size].unsqueeze(1),
+                            dim=-1, n=L)
             for i in range(0, C, variable_batch_size)],
             2)  # [B, C, C, L]
     else:
         cross_corr = torch.fft.irfft(
             rfft.unsqueeze(2) * rfft_conj[:, predefined_leaders.view(-1)].view(B, C, -1, rfft.shape[-1]),
-            dim=-1)
+            dim=-1, n=L)
 
     if local_max:
         corr_abs = cross_corr.abs()
@@ -129,13 +130,14 @@ def estimate_strict_indicator_coef(x, K, num_lead_step=1, variable_batch_size=32
     rfft_conj = torch.conj(rfft)
     if predefined_leaders is None:
         cross_corr = torch.cat([
-            torch.fft.irfft(rfft.unsqueeze(2) * rfft_conj[:, i: i + variable_batch_size].unsqueeze(1), dim=-1)
+            torch.fft.irfft(rfft.unsqueeze(2) * rfft_conj[:, i: i + variable_batch_size].unsqueeze(1),
+                            dim=-1, n=L)
             for i in range(0, C, variable_batch_size)],
             2)  # [B, C, C, L]
     else:
         cross_corr = torch.fft.irfft(
             rfft.unsqueeze(2) * rfft_conj[:, predefined_leaders.view(-1)].view(B, C, -1, rfft.shape[-1]),
-            dim=-1)
+            dim=-1, n=L)
     corr_abs = cross_corr.abs()
     mask = (corr_abs[..., 1:-1] >= corr_abs[..., :-2]) & (corr_abs[..., 1:-1] >= corr_abs[..., 2:])
     cross_corr = cross_corr[..., 1:-1] * mask
