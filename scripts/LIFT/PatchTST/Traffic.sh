@@ -13,7 +13,7 @@ tau=1.0
 data=Traffic
 model_name=PatchTST
 train_epochs=100
-
+state_num=1
 for pred_len in 24
 do
   pct_start=0.2
